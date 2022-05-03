@@ -5,32 +5,38 @@ class Conway(init: Int = 1) {
   // renvoie le rang suivant : List(1, 1) --> List(2, 1)
   def lire(rang : List[Int]) : List[Int] = {
 
-    def inc_lire(rang: List[Int], result: List[Int], nbOccurence: Int, current: Int): List[Int] = {
-      if(rang.isEmpty) {
-        result :+ nbOccurence :+ current
-      } else if (rang.head != current) {
-        inc_lire(rang.tail, result :+ nbOccurence :+ current, 1, rang.head)
-      } else {
-        inc_lire(rang.tail, result , nbOccurence + 1, rang.head)
+    def matcher(rang: List[Int], nbOccurence: Int) : List[Int] = rang match {
+      case first :: Nil => {
+        nbOccurence :: first :: Nil
+      }
+      case first :: tail => {
+        if(first == tail.head)
+          matcher(tail, nbOccurence + 1)
+        else
+          nbOccurence :: first  :: matcher(tail, 1)
       }
     }
 
-    inc_lire(rang.tail, List(), 1, rang.head)
+    matcher(rang, 1)
+  }
+
+  def create_rangs(init : List[Int]) : LazyList[List[Int]] = {
+    lire(init) #:: create_rangs(lire(init))
   }
 
   // la suite infinie de tout les rangs
-  val rangs : LazyList[List[Int]] = List(lire(lire(List(1)))).to(LazyList)
-
+  val rangs : LazyList[List[Int]] = create_rangs(List(init))
 
   //renvoie le rang sous forme de chaine de caractère
   // attention : rang commence à 1
   def apply(rang: Int): String = {
-    def inc_apply(rang: Int, result: List[Int]) : List[Int] = {
-      if(rang > 0)
-        inc_apply(rang - 1, lire(result))
-      else result
+
+    def matcher(rang: Int) : List[Int] = rang match {
+      case 1 => List(init)
+      case _ => lire(matcher(rang - 1))
     }
-    inc_apply(rang- 1, List(init)).mkString(" ")
+
+    matcher(rang).mkString(" ")
   }
 
 }

@@ -7,3 +7,7 @@ c(2)
 c(3)
 c(4)
 c(5)
+
+c.rangs(3)
+
+c.rangs
