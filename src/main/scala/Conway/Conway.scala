@@ -5,6 +5,7 @@ class Conway(init: Int = 1) {
   // renvoie le rang suivant : List(1, 1) --> List(2, 1)
   def lire(rang : List[Int]) : List[Int] = {
 
+    rang[0]
     def matcher(rang: List[Int], nbOccurence: Int) : List[Int] = rang match {
       case first :: Nil => {
         nbOccurence :: first :: Nil
@@ -21,7 +22,7 @@ class Conway(init: Int = 1) {
   }
 
   def create_rangs(init : List[Int]) : LazyList[List[Int]] = {
-    lire(init) #:: create_rangs(lire(init))
+    init #:: create_rangs(lire(init))
   }
 
   // la suite infinie de tout les rangs
@@ -30,13 +31,7 @@ class Conway(init: Int = 1) {
   //renvoie le rang sous forme de chaine de caractère
   // attention : rang commence à 1
   def apply(rang: Int): String = {
-
-    def matcher(rang: Int) : List[Int] = rang match {
-      case 1 => List(init)
-      case _ => lire(matcher(rang - 1))
-    }
-
-    matcher(rang).mkString(" ")
+    rangs(rang - 1).mkString(" ")
   }
 
 }
