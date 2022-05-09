@@ -26,37 +26,41 @@ case class Graphe(noeuds: Set[Noeud], arcs: Set[Arc]) {
 
   def distance(depart: Noeud, arrive: Noeud): Option[Int] = {
 
-    def rec_distance(current: Noeud, old_neighbors : Set[Noeud], distance : Int): Option[Int] = {
-        if(current == arrive)
-          Option(distance)
-        else{
+    def matcher(current: Noeud, old_neighbors : Set[Noeud], distance : Option[Int]) : Option[Int] = current match {
+      case `arrive`=> distance
+      case _ => {
+        val res = for {
+          noeud <- voisins(current) -- old_neighbors
+        } yield(matcher(noeud, old_neighbors ++ Set(noeud),  Some(distance.get + 1)))
 
-          val neighbors = voisins(current) -- old_neighbors
-          if(neighbors.isEmpty)
+        if(res.isEmpty) None else {
+
+          if(res.filter(_.isDefined).isEmpty)
             None
-          else {
-            val res = for {
-              voisin <- voisins(current) -- old_neighbors
-              if(rec_distance(voisin, old_neighbors ++ Set(voisin), distance + 1).isDefined)
-            } yield rec_distance(voisin, old_neighbors ++ Set(voisin), distance + 1)
-
-            if(res.isEmpty)
-              None
-            else {
-              res.min
-            }
-
-          }
+          else
+            res.filter(_.isDefined).min
         }
-
+      }
     }
 
-    rec_distance(depart,Set(), 0)
+    matcher(depart, Set(), Some(0))
+  }
+
+  def deep_search(current : Noeud, old_neightbors : Set[Noeud]) : Set[Noeud] = {
+    val neightbors = voisins(current) -- old_neightbors
+    if(neightbors.isEmpty)
+      old_neightbors + current
+    else {
+      neightbors.flatMap((node) => deep_search(node, old_neightbors + current))
+    }
 
   }
 
-  lazy val composantesConnexes: Set[Set[Noeud]] = ???
+  lazy val composantesConnexes: Set[Set[Noeud]] = for {
+      node <- noeuds
+    } yield (deep_search(node, Set()))
 
-  lazy val estBicoloriable: Boolean = ???
+
+  lazy val estBicoloriable: Boolean = composantesConnexes.count(_.size > 1) == 2
 
 }

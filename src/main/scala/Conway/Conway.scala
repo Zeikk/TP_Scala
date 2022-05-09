@@ -5,7 +5,6 @@ class Conway(init: Int = 1) {
   // renvoie le rang suivant : List(1, 1) --> List(2, 1)
   def lire(rang : List[Int]) : List[Int] = {
 
-    rang[0]
     def matcher(rang: List[Int], nbOccurence: Int) : List[Int] = rang match {
       case first :: Nil => {
         nbOccurence :: first :: Nil
