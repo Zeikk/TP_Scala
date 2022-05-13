@@ -8,7 +8,7 @@ case class Arc(extremite1: String, extremite2: String)
 
 case class Graphe(noeuds: Set[Noeud], arcs: Set[Arc]) {
 
-  def +(arc: Arc): Graphe = Graphe(noeuds = noeuds ++ Set(Noeud(arc.extremite1), Noeud(arc.extremite2)), arcs = arcs ++ Set(arc))
+  def +(arc: Arc): Graphe = Graphe(noeuds = noeuds + Noeud(arc.extremite1)+ Noeud(arc.extremite2), arcs = arcs + arc)
 
   def +(autre: Graphe): Graphe = Graphe(noeuds = noeuds ++ autre.noeuds, arcs = arcs ++ autre.arcs)
 
