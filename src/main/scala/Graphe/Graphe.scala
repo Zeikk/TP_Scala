@@ -1,14 +1,12 @@
 package Graphe
 
-import scala.annotation.tailrec
-
 case class Noeud(nom: String)
 
 case class Arc(extremite1: String, extremite2: String)
 
 case class Graphe(noeuds: Set[Noeud], arcs: Set[Arc]) {
 
-  def +(arc: Arc): Graphe = Graphe(noeuds = noeuds + Noeud(arc.extremite1)+ Noeud(arc.extremite2), arcs = arcs + arc)
+  def +(arc: Arc): Graphe = Graphe(noeuds = noeuds + Noeud(arc.extremite1) + Noeud(arc.extremite2), arcs = arcs + arc)
 
   def +(autre: Graphe): Graphe = Graphe(noeuds = noeuds ++ autre.noeuds, arcs = arcs ++ autre.arcs)
 
@@ -31,15 +29,10 @@ case class Graphe(noeuds: Set[Noeud], arcs: Set[Arc]) {
       case _ => {
         val res = for {
           noeud <- voisins(current) -- old_neighbors
-        } yield(matcher(noeud, old_neighbors ++ Set(noeud),  Some(distance.get + 1)))
+        } yield(matcher(noeud, old_neighbors + noeud,  Some(distance.get + 1)))
 
-        if(res.isEmpty) None else {
-
-          if(res.filter(_.isDefined).isEmpty)
-            None
-          else
-            res.filter(_.isDefined).min
-        }
+        if(res.isEmpty || res.forall(_.isEmpty)) None  // vérification si une solution existe
+        else res.filter(_.isDefined).min
       }
     }
 
@@ -51,16 +44,30 @@ case class Graphe(noeuds: Set[Noeud], arcs: Set[Arc]) {
     if(neightbors.isEmpty)
       old_neightbors + current
     else {
-      neightbors.flatMap((node) => deep_search(node, old_neightbors + current))
+      neightbors.flatMap(deep_search(_, old_neightbors + current))
     }
 
   }
 
   lazy val composantesConnexes: Set[Set[Noeud]] = for {
       node <- noeuds
-    } yield (deep_search(node, Set()))
+  } yield deep_search(node, Set())
 
 
-  lazy val estBicoloriable: Boolean = composantesConnexes.count(_.size > 1) == 2
+  lazy val estBicoloriable: Boolean = {
+    def check(firstColor: Set[Noeud], secondColor: Set[Noeud], composant : Set[Noeud]): Boolean = {
+      if (firstColor.intersect(secondColor).nonEmpty)
+        false
+      else
+        if(composant.equals(firstColor ++ secondColor))
+          true
+        else
+          check(firstColor ++ secondColor.flatMap(voisins), secondColor ++ firstColor.flatMap(voisins), composant)
+    }
+
+    (for {
+      composant <- composantesConnexes
+    } yield check(Set(composant.head), Set(), composant)).forall(_ == true)
+  }
 
 }

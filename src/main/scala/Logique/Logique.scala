@@ -230,8 +230,7 @@ package object Logique {
 
     //Question 7 :
     // Définir la fonction qui renvoie vrai si la base de connaissance infère le théorème
-    def preuve: Boolean = lignes.filter((ligne) => ligne.valeurBC.forall(_ == true)).forall(_.valeurTh == true)
-
+    def preuve: Boolean = lignes.filter(_.valeurBC.forall(_ == true)).forall(_.valeurTh == true)
 
     //Question 8 :
     // définir une méthode qui affiche tout ou parti du tableau de vérité
